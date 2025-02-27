@@ -97,7 +97,6 @@ void initialiseGrid( int N, int M )
 }
 
 
-// Iterate using the original rules of Conway's game of life.
 void iterateWithOriginalRules( int N )
 {
     int i, j;
@@ -109,6 +108,7 @@ void iterateWithOriginalRules( int N )
             gridCopy[i][j] = grid[i][j];
 
     // Apply the rules of Conway's Game of Life. Note that grid squares on the boundary are not updated and will always remain empty.
+    #pragma omp parallel for private(j) shared(grid, gridCopy) schedule(static)
     for( i=1; i<N-1; i++ )
         for( j=1; j<N-1; j++ )
         {
@@ -141,6 +141,7 @@ void iterateWithModifiedRules( int N )
             gridCopy[i][j] = grid[i][j];
 
     // Apply the modified rules of Conway's Game of Life.
+    #pragma omp parallel for private(j) shared(grid, gridCopy) schedule(static)
     for( i=1; i<N-1; i++ )
         for( j=1; j<N-1; j++ )
         {
