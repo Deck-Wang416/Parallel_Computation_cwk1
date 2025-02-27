@@ -107,7 +107,7 @@ void iterateWithOriginalRules( int N )
         for( j=0; j<N; j++ )
             gridCopy[i][j] = grid[i][j];
 
-    // Apply the rules of Conway's Game of Life. Note that grid squares on the boundary are not updated and will always remain empty.
+    // Apply the rules of Conway's Game of Life.
     #pragma omp parallel for private(j) shared(grid, gridCopy) schedule(static)
     for( i=1; i<N-1; i++ )
         for( j=1; j<N-1; j++ )
@@ -120,49 +120,57 @@ void iterateWithOriginalRules( int N )
             // Apply the update rules.
             if( grid[i][j]==1 )
             {
-                if( numNeighbours<2 || numNeighbours>3 ) grid[i][j] = 0;        // ... else grid[i][j] remains 1.
+                if( numNeighbours<2 || numNeighbours>3 ) grid[i][j] = 0;
             }
-            else            // i.e. if grid[i][j]==0.
+            else
             {
                 if( numNeighbours==3 ) grid[i][j] = 1; 
             }
         }
 }
 
-// Iterate using the modified rules as explained in the coursework instructions.
 void iterateWithModifiedRules( int N )
 {
-    int i, j;
+    int i, j, numNeighbours;
 
-    // For the purposes of this assignment, make a copy of the grid and read this copy when updating the main array grid[]
-    // (rather using pointers to alternate between the two arrays, which is not allowed for this assignment).
-    for( i=0; i<N; i++ )
-        for( j=0; j<N; j++ )
-            gridCopy[i][j] = grid[i][j];
-
-    // Apply the modified rules of Conway's Game of Life.
-    #pragma omp parallel for private(j) shared(grid, gridCopy) schedule(static)
+    // Update red cells.
+    #pragma omp parallel for private(numNeighbours) collapse(2) schedule(static)
     for( i=1; i<N-1; i++ )
         for( j=1; j<N-1; j++ )
         {
-            // Count the number of neighbours in the Moore neighbourhood in the grid copy.
-            int numNeighbours = gridCopy[i-1][j+1] + gridCopy[i][j+1] + gridCopy[i+1][j+1]
-                              + gridCopy[i-1][j  ]                    + gridCopy[i+1][j  ]
-                              + gridCopy[i-1][j-1] + gridCopy[i][j-1] + gridCopy[i+1][j-1];
-
-            // Modified rule: Any live cell with fewer than 2 or more than 4 neighbours dies.
-            // Any dead cell with exactly 3 neighbours becomes alive.
-            if( grid[i][j]==1 )
-            {
-                if( numNeighbours<2 || numNeighbours>4 ) grid[i][j] = 0;        // Cells with < 2 or > 4 neighbours die.
+            if ((i + j) % 2 == 0) {
+                numNeighbours = grid[i][j+1] + grid[i+1][j] + grid[i][j-1] + grid[i-1][j];
+                
+                // Apply the modified rules for red cells.
+                if (grid[i][j] == 1) {
+                    if (numNeighbours == 0 || numNeighbours == 3) 
+                        grid[i][j] = 0;
+                } else {
+                    if (numNeighbours == 2) 
+                        grid[i][j] = 1;
+                }
             }
-            else            // i.e. if grid[i][j]==0.
-            {
-                if( numNeighbours==3 ) grid[i][j] = 1; 
+        }
+
+    // Update black cells.
+    #pragma omp parallel for private(numNeighbours) collapse(2) schedule(static)
+    for( i=1; i<N-1; i++ )
+        for( j=1; j<N-1; j++ )
+        {
+            if ((i + j) % 2 == 1) {
+                numNeighbours = grid[i][j+1] + grid[i+1][j] + grid[i][j-1] + grid[i-1][j];
+
+                // Apply the modified rules for black cells.
+                if (grid[i][j] == 1) {
+                    if (numNeighbours == 0 || numNeighbours == 3) 
+                        grid[i][j] = 0;
+                } else {
+                    if (numNeighbours == 2) 
+                        grid[i][j] = 1;
+                }
             }
         }
 }
-
 
 //
 // Main. Parses command line arguments and initiates the simulation.
