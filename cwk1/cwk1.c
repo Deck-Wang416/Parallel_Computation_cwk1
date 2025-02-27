@@ -166,67 +166,69 @@ void iterateWithModifiedRules( int N )
 //
 // Main. Parses command line arguments and initiates the simulation.
 //
-int main( int argc, char **argv )
+int main(int argc, char **argv)
 {
-    // Seed the psuedo-random number generator to the current time.
-    srand( time(NULL) );
+    srand(time(NULL));
 
-    // Declarations for the variables specified on the command line.
     int N, M, numIterations, rulesVersion;
 
-    // Parse the command line arguments. This function is defined in the extra file, and returns -1 if there was a problem.
-    if( parseCommandLineArguments( argc, argv, &N, &M, &numIterations, &rulesVersion )==-1 ) return EXIT_FAILURE;
-    
-    // Allocate memory for two grids, 'grid' and 'gridCopy,' which are declared above. Defined in the extra file. Returns -1 if there was a problem.
-    if( allocateGridsMemory( &grid, &gridCopy, N )==-1 ) return EXIT_FAILURE;
+    // Parse the command line arguments.
+    if (parseCommandLineArguments(argc, argv, &N, &M, &numIterations, &rulesVersion) == -1)
+        return EXIT_FAILURE;
 
-    // Initialise grid with M cells. This is defined above, in this file.
-    initialiseGrid( N, M );
+    // Allocate memory for the grids.
+    if (allocateGridsMemory(&grid, &gridCopy, N) == -1)
+        return EXIT_FAILURE;
 
-    // Display the initial grid to terminal. This routine is defined in the extra file.
-    printf( "Initial grid.\n" );
-    displayGrid( grid, N, numCells(N) );         // DO NOT ALTER THIS LINE - displayGrid() must be called here, as part of the assessment.
+    // Initialise grid with M cells.
+    initialiseGrid(N, M);
 
-    // Also initialise the graphical output if selected and available.
+    // Display the initial grid to terminal.
+    printf("Initial grid.\n");
+    displayGrid(grid, N, numCells(N));
+
+    // Graphical output initialization, if selected.
 #ifdef GLFW
-    GLFWwindow* window = initialiseGLFWWindow( N, grid );
+    GLFWwindow* window = initialiseGLFWWindow(N, grid);
 #endif
 
     // Iterate through the loop and apply the rules.
     int iteration = 0;
-    for( iteration=0; iteration<numIterations; iteration++ )
+    for (iteration = 0; iteration < numIterations; iteration++)
     {
-        switch( rulesVersion )
+        switch (rulesVersion)
         {
-            case 0  :   iterateWithOriginalRules( N ); break;
-            case 1  :   iterateWithModifiedRules( N ); break;
+        case 0:
+            iterateWithOriginalRules(N);
+            break;
+        case 1:
+            iterateWithModifiedRules(N);
+            break;
 
-            default:
-                return EXIT_FAILURE;        // Should never happen - rulesVersion has already been checked to be 0 or 1. 
+        default:
+            return EXIT_FAILURE;
         }
 
         // Output the current state of the grid to terminal as text.
-        printf( "\nGrid after %d iteration(s):\n", iteration+1 );
-        displayGrid( grid, N, numCells(N) );        // DO NOT ALTER THIS LINE - displayGrid() must be called here, as part of the assessment.
+        printf("\nGrid after %d iteration(s):\n", iteration + 1);
+        displayGrid(grid, N, numCells(N));
 
         // If graphics selected, update the window.
 #ifdef GLFW
-        displayImage( N, grid );
-        glfwSwapBuffers( window );
-		glfwPollEvents();
- #endif
+        displayImage(N, grid);
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+#endif
 
-        // A short pause before the next iteration. The argument is in microseconds. usleep() is defined in unistd.h
-        usleep( 200000 );
-   }
+        // A short pause before the next iteration.
+        usleep(200000);
+    }
 
     // Close the graphics window once the user presses escape or 'q'.
 #ifdef GLFW
-	while( !glfwWindowShouldClose(window) ) { glfwPollEvents(); }
-    glfwDestroyWindow( window );
+    while (!glfwWindowShouldClose(window)) { glfwPollEvents(); }
+    glfwDestroyWindow(window);
     glfwTerminate();
 #endif
 
 }
-
-
