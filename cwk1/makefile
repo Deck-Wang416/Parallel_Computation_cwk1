@@ -5,9 +5,9 @@
 # name of the C-compiler to something that only exists on your system).
 #
 EXE = cwk1
-CC = gcc
+CC = gcc-14
 CCFLAGS = -fopenmp -lm
-GRAPHICS = NONE
+GRAPHICS = GLFW
 
 OS = $(shell uname)
 
