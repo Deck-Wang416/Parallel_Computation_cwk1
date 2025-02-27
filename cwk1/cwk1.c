@@ -132,6 +132,34 @@ void iterateWithOriginalRules( int N )
 // Iterate using the modified rules as explained in the coursework instructions.
 void iterateWithModifiedRules( int N )
 {
+    int i, j;
+
+    // For the purposes of this assignment, make a copy of the grid and read this copy when updating the main array grid[]
+    // (rather using pointers to alternate between the two arrays, which is not allowed for this assignment).
+    for( i=0; i<N; i++ )
+        for( j=0; j<N; j++ )
+            gridCopy[i][j] = grid[i][j];
+
+    // Apply the modified rules of Conway's Game of Life.
+    for( i=1; i<N-1; i++ )
+        for( j=1; j<N-1; j++ )
+        {
+            // Count the number of neighbours in the Moore neighbourhood in the grid copy.
+            int numNeighbours = gridCopy[i-1][j+1] + gridCopy[i][j+1] + gridCopy[i+1][j+1]
+                              + gridCopy[i-1][j  ]                    + gridCopy[i+1][j  ]
+                              + gridCopy[i-1][j-1] + gridCopy[i][j-1] + gridCopy[i+1][j-1];
+
+            // Modified rule: Any live cell with fewer than 2 or more than 4 neighbours dies.
+            // Any dead cell with exactly 3 neighbours becomes alive.
+            if( grid[i][j]==1 )
+            {
+                if( numNeighbours<2 || numNeighbours>4 ) grid[i][j] = 0;        // Cells with < 2 or > 4 neighbours die.
+            }
+            else            // i.e. if grid[i][j]==0.
+            {
+                if( numNeighbours==3 ) grid[i][j] = 1; 
+            }
+        }
 }
 
 
