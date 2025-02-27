@@ -9,8 +9,6 @@
 #include <GLFW/glfw3.h>
 #endif
 
-void iterateWithModifiedRules(int N);
-
 // Parse the command line arguments. Returns -1 if there was a problem.
 int parseCommandLineArguments( int argc, char **argv, int *N, int *M, int *nIters, int *version )
 {
